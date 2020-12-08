@@ -144,6 +144,7 @@ void chip8::emulateCycle()
 		// 8xy0
 		case 0x0000:
 			R[(opcode & 0x0F00) >> 8] = R[(opcode & 0x00F0) >> 4];
+			pc += 2;
 			break;
 
 		// 8xy1
@@ -177,20 +178,83 @@ void chip8::emulateCycle()
 			break;
 
 		// 8xy5
+		case 0x0005:
+			R[(opcode & 0x0F00) >> 8] -= R[(opcode & 0x00F0) >> 4];
+			if (R[(opcode & 0x0F00) >> 8] < R[(opcode & 0x00F0) >> 4])
+			{
+				R[0xF] = 1;
+			}
+			else {
+				R[0] = 0;
+			}
+			pc += 2;
+			break;
+
 		// 8xy6
+		case 0x0006:
+			R[0xF] = R[(opcode & 0x0F00) >> 8] & 0x0001;
+			R[(opcode & 0x0F00) >> 8] >>= 1;
+			pc += 2;
+			break;
+
 		// 8xy7
+		case 0x0007:
+			R[(opcode & 0x0F00) >> 8] = R[(opcode & 0x00F0) >> 4] - R[(opcode & 0x0F00) >> 8];
+			if (R[(opcode & 0x0F00) >> 8] > R[(opcode & 0x00F0) >> 4])
+			{
+				R[0xF] = 0;
+			}
+			else {
+				R[0xF] = 1;
+			}
+			pc += 2;
+			break;
+
 		// 8xye
+		case 0x000E:
+			R[0xF] = R[(opcode & 0x8000) >> 16];
+			R[(opcode & 0x0F00) >> 8] >>= 1;
+			pc += 2;
+			break;
+
 
 		default:
 			printf("opcode not found [0x8000] %X\n", opcode);
 		}
+		break;
+
+		// 9xy0
+	case 0x9000:
+		if (R[(opcode & 0x0F00) >> 8] != R[(opcode & 0x00F0) >> 4])
+		{
+			pc += 4;
+		}
+		else {
+			pc += 2;
+		}
+		break;
+
+		// annn
+	case 0xA000:
+		I = memory[opcode & 0x0FFF];
 		pc += 2;
 		break;
-		// 9xy0
-		// annn
+
 		// bnnn
+	case 0xB000:
+		pc = R[0] + (opcode & 0x0FFF);
+		break;
+
 		// cxnn
+	case 0xC000:
+		R[(opcode & 0x0F00) >> 8] = rand() % 256;
+		pc += 2;
+		break;
+
 		// dxyn
+	case 0xD000:
+
+
 		// ex9e
 		// exa1
 		// fx07

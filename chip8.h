@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <cstdlib>
 
 const unsigned short GRAPHICS_SIZE = 64 * 32;
 const unsigned short MEMORY_SIZE = 4096;
