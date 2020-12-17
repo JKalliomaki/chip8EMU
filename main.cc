@@ -33,11 +33,33 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
+		engine->emulateCycle();
+		if (engine->drawFlag)
+		{
+			for (int y = 0; y < 32; y++)
+			{
+				for (int x = 0; x < 64; x++)
+				{
+					if (engine->gfx[y * 32 + x])
+					{
+						Draw(x, y, olc::DARK_GREY);
+					}
+					else {
+						Draw(x, y, olc::WHITE);
+					}
+				}
+			}
+			engine->drawFlag = false;
+		}
+		return true;
+
+		/*
 		// called once per frame
 		for (int x = 0; x < ScreenWidth(); x++)
 			for (int y = 0; y < ScreenHeight(); y++)
 				Draw(x, y, olc::Pixel(rand() % 255, rand() % 255, rand() % 255));
 		return true;
+		*/
 	}
 
 	bool setGame(const char gameFileName[])
@@ -54,21 +76,20 @@ private:
 
 int main(int argc, char** argv)
 {
-
 	if (argc < 2)
 	{
-		printf("Usage: myChip8.exe chip8application\n\n");
-		return 1;
+		printf("Usage: myChip8.exe chip8application\n");
 	}
-
-
 
 	myWindow window;
 	if (window.Construct(64, 32, 4, 4))
 	{
-		if (!window.setGame(argv[1])) {
-			printf("Game initialization failed");
-			return 1;
+		if (argv[1]) {
+			window.setGame(argv[1]);
+		}
+		else {
+			printf("Game initialization failed, trying default game\n");
+			window.setGame("../pong2.c8");
 		}
 
 		window.Start();

@@ -1,5 +1,26 @@
 #include "chip8.h"
 
+unsigned char chip8_fontset[80] =
+{
+	0xF0, 0x90, 0x90, 0x90, 0xF0, //0
+	0x20, 0x60, 0x20, 0x20, 0x70, //1
+	0xF0, 0x10, 0xF0, 0x80, 0xF0, //2
+	0xF0, 0x10, 0xF0, 0x10, 0xF0, //3
+	0x90, 0x90, 0xF0, 0x10, 0x10, //4
+	0xF0, 0x80, 0xF0, 0x10, 0xF0, //5
+	0xF0, 0x80, 0xF0, 0x90, 0xF0, //6
+	0xF0, 0x10, 0x20, 0x40, 0x40, //7
+	0xF0, 0x90, 0xF0, 0x90, 0xF0, //8
+	0xF0, 0x90, 0xF0, 0x10, 0xF0, //9
+	0xF0, 0x90, 0xF0, 0x90, 0x90, //A
+	0xE0, 0x90, 0xE0, 0x90, 0xE0, //B
+	0xF0, 0x80, 0x80, 0x80, 0xF0, //C
+	0xE0, 0x90, 0x90, 0x90, 0xE0, //D
+	0xF0, 0x80, 0xF0, 0x80, 0xF0, //E
+	0xF0, 0x80, 0xF0, 0x80, 0x80  //F
+};
+
+
 chip8::~chip8()
 {
 	
@@ -15,6 +36,7 @@ void chip8::initialize()
 
 	// Clear display
 	disp_clear();
+	drawFlag = true;
 
 	// Clear stack
 	for ( unsigned short i = 0; i < 16; i++)
@@ -34,28 +56,44 @@ void chip8::initialize()
 		memory[i] = 0;
 	}
 	// Load fontset
+	for (int i = 0; i < 80; i++) {
+		memory[i] = chip8_fontset[i];
+	}
 
 	// Reset timers
-
+	delay_timer = 0;
+	sound_timer = 0;
 }
 
 bool chip8::load(const char gameFileName[])
 {
 	// open file in binary format and move to end of it with ::ate
-	std::ifstream gameFile(gameFileName, std::ios::binary | std::ios::ate);
-	if (gameFile.is_open())
+	FILE* gameFileP;
+	errno_t err = fopen_s(&gameFileP, gameFileName, "rb");
+	if (err != 0) {
+		printf("file open error \n");
+		return false;
+	}
+	if (gameFileP != nullptr)
 	{
-		// Opening successful, use tellg after ::ate to get position -> size
-		std::streampos size = gameFile.tellg();
-		long sizeI = long(size);
-		char* buffer = new char[sizeI];
+		// get size of file
+		fseek(gameFileP, 0, SEEK_END);
+		long sizeI = ftell(gameFileP);
+		rewind(gameFileP);
+		printf("filesize of loaded game: %d\n", (int)sizeI);
+
+		// Create buffer
+		char* buffer = (char*)malloc(sizeof(char) * sizeI);
+
+		// copy file to buffer
+		size_t bufferSize = fread(buffer, 1, sizeI, gameFileP);
 
 		// Read file, 0x200 is default gamefile's storing starting pos
-		for (long i = 0; i < sizeI; i++)
+		for (int i = 0; i < sizeI; i++)
 		{
-			memory[512 + i] = buffer[i];
+			memory[i + 512] = buffer[i];
 		}
-		delete[] buffer;
+		free(buffer);
 	}
 	else {
 		printf("error reading file \n");
@@ -63,7 +101,7 @@ bool chip8::load(const char gameFileName[])
 	}
 
 	// Close file
-	gameFile.close();
+	fclose(gameFileP);
 	return true;
 }
 
@@ -87,11 +125,19 @@ void chip8::emulateCycle()
 		// 0x00E0, clear display
 		case 0x0000:
 			disp_clear();
+			drawFlag = true;
+			pc += 2;
+			break;
+
 		// 0x00EE, return from subroutine
-		case 0x00e:
-			// WIP
+		case 0x000e:
+			--sp;
+			pc = stack[sp];
+			pc += 2;
+			break;
 		default:
 			printf("Unknown opcode [0x0000]: 0x%X\n", opcode);
+			pc += 2;
 		}
 		break;
 
@@ -197,7 +243,7 @@ void chip8::emulateCycle()
 				R[0xF] = 1;
 			}
 			else {
-				R[0] = 0;
+				R[0xF] = 0;
 			}
 			pc += 2;
 			break;
@@ -232,6 +278,7 @@ void chip8::emulateCycle()
 
 		default:
 			printf("opcode not found [0x8000] %X\n", opcode);
+			pc += 2;
 		}
 		break;
 
@@ -311,10 +358,11 @@ void chip8::emulateCycle()
 
 		default:
 			printf("opcode not found [0xE000] %X\n", opcode);
+			pc += 2;
 			break;
 		}
-	case 0xF000:
-		switch (opcode & 0x000F)
+	case 0xf000:
+		switch (opcode & 0x00FF)
 		{
 		// fx07
 		case 0x0007:
@@ -323,7 +371,7 @@ void chip8::emulateCycle()
 			break;
 
 		// fx18
-		case 0x0008:
+		case 0x0018:
 			R[(opcode & 0x0F00) >> 8] = sound_timer;
 			pc += 2;
 			break;
@@ -335,19 +383,19 @@ void chip8::emulateCycle()
 			break;
 
 		// fx1e
-		case 0x000E:
+		case 0x001E:
 			I += R[(opcode & 0x0F00) >> 8];
 			pc += 2;
 			break;
 
 		// fx29
-		case 0x0009:
+		case 0x0029:
 			printf("not made yet %X\n", opcode);
 			pc += 2;
 			break;
 
 		// fx33
-		case 0x0003:
+		case 0x0033:
 			tempInt = R[(opcode & 0x0F00) >> 8];
 			memory[I] = tempInt / 100;
 			memory[I + 1] = (tempInt - (int(memory[I]) * 100)) / 10;
@@ -355,7 +403,7 @@ void chip8::emulateCycle()
 			pc += 2;
 			break;
 
-		case 0x0005:
+		case 0x0015:
 			switch (opcode & 0x00F0) {
 			// fx15
 			case 0x0010:
@@ -385,19 +433,30 @@ void chip8::emulateCycle()
 
 			default:
 				printf("opcode not found [0xF005] %X\n", opcode);
+				pc += 2;
+				break;
 			}
-
+		default:
+			printf("opcode not found [0xF000] %X\n", opcode);
+			pc += 2;
 			break;
 		}
 
 
 	default:
 		printf("Unknown opcode 0x%X\n", opcode);
+		pc += 2;
 		break;
 	}
 
 
 	// Update timers
+	if (delay_timer > 0) {
+		delay_timer--;
+	}
+	if (sound_timer > 0) {
+		sound_timer--;
+	}
 
 }
 

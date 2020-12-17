@@ -22,6 +22,9 @@ public:
 
 	bool drawFlag = false;
 
+	// Graphics: 64x32 px with pixel on or off (1 or 0)
+	unsigned char gfx[GRAPHICS_SIZE] = { 0 };
+
 private:
 
 	unsigned short opcode = 0;
@@ -39,8 +42,7 @@ private:
 	unsigned short stack[16] = { 0 };
 	unsigned short sp = 0;
 
-	// Graphics: 64x32 px with pixel on or off (1 or 0)
-	unsigned char gfx[GRAPHICS_SIZE] = { 0 };
+	
 
 	// Timers count at 60 Hz. When set above zero they count towards zero
 	unsigned char delay_timer = 0;
