@@ -1,5 +1,5 @@
 # Chip8 emulator
-chip8 emulator with basic idea gotten from [here.](http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/)
+chip8 emulator with basic idea gotten from [here.](http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/) Did this to experiment and learn more about bitwise operations and to learn basics of olc::PGE to maybe make more out of it in future.
 
 Rendering of the game is done with [oneLoneCoder's PixelGameEngine.](https://github.com/OneLoneCoder/olcPixelGameEngine)
 
