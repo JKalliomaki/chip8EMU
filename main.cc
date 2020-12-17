@@ -75,7 +75,7 @@ public:
 				{
 					if (engine->gfx[y * 64 + x])
 					{
-						Draw(x, y, olc::DARK_GREY);
+						Draw(x, y, olc::BLACK);
 					}
 					else {
 						Draw(x, y, olc::WHITE);

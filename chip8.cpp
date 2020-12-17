@@ -124,9 +124,9 @@ void chip8::emulateCycle()
 			break;
 
 		case 0x000E: // 0x00EE: Returns from subroutine
-			--sp;			// 16 levels of stack, decrease stack pointer to prevent overwrite
-			pc = stack[sp];	// Put the stored return address from the stack back into the program counter					
-			pc += 2;		// Don't forget to increase the program counter!
+			--sp;
+			pc = stack[sp];				
+			pc += 2;		
 			break;
 
 		default:
@@ -139,9 +139,9 @@ void chip8::emulateCycle()
 		break;
 
 	case 0x2000: // 0x2NNN: Calls subroutine at NNN.
-		stack[sp] = pc;			// Store current address in stack
-		++sp;					// Increment stack pointer
-		pc = opcode & 0x0FFF;	// Set the program counter to the address at NNN
+		stack[sp] = pc;	
+		++sp;
+		pc = opcode & 0x0FFF;
 		break;
 
 	case 0x3000: // 0x3XNN: Skips the next instruction if RX equals NN
@@ -264,10 +264,6 @@ void chip8::emulateCycle()
 		break;
 
 	case 0xD000: // DXYN: Draws a sprite at coordinate (RX, RY) that has a width of 8 pixels and a height of N pixels. 
-				 // Each row of 8 pixels is read as bit-coded starting from memory location I; 
-				 // I value doesn't change after the execution of this instruction. 
-				 // RF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, 
-				 // and to 0 if that doesn't happen
 	{
 		unsigned short x = R[(opcode & 0x0F00) >> 8];
 		unsigned short y = R[(opcode & 0x00F0) >> 4];
