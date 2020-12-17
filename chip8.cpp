@@ -1,5 +1,9 @@
 #include "chip8.h"
 
+chip8::~chip8()
+{
+}
+
 void chip8::initialize()
 {
 	pc = 0x200;	// pc to expected starting location
@@ -43,12 +47,12 @@ void chip8::load(const char gameFileName[])
 		// Opening successful, use tellg after ::ate to get position -> size
 		std::streampos size = gameFile.tellg();
 		long sizeI = long(size);
-		char* buffer = new char[size];
+		char* buffer = new char[sizeI];
 
 		// Read file, 0x200 is default gamefile's storing starting pos
 		for (long i = 0; i < sizeI; i++)
 		{
-			memory[0x200 + i] = buffer[i];
+			memory[512 + i] = buffer[i];
 		}
 		delete[] buffer;
 	}
@@ -277,6 +281,7 @@ void chip8::emulateCycle()
 			}
 		}
 		pc += 2;
+		drawFlag = true;
 		break;
 
 		// ex9e
@@ -378,7 +383,6 @@ void chip8::emulateCycle()
 			default:
 				printf("opcode not found [0xF005] %X\n", opcode);
 			}
-
 
 			break;
 		}

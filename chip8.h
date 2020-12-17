@@ -12,12 +12,15 @@ class chip8
 {
 public:
 	chip8() { initialize(); }
+	~chip8();
 
 	void initialize();
 
 	void load(const char gameFileName[] = "pong");
 
 	void emulateCycle();
+
+	bool drawFlag = false;
 
 private:
 
