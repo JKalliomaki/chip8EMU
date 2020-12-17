@@ -17,6 +17,12 @@ for example
 Debug/chip8EMU.exe pong2.c8
 ```
 
+Keypad on the keyboard is 
+1|2|3|4
+q|w|e|r
+a|s|d|f
+z|x|c|v
+
 ### In progress:
 * Audio output
 * Cleaning of emulating cycle (maybe function pointers)
