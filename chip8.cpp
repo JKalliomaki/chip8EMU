@@ -120,8 +120,8 @@ void chip8::emulateCycle()
 	switch (opcode & 0xF000)
 	{
 	case 0x0000:
-		// 0NNN (not necessary in most ROMs)
-		switch (opcode & 0x000F) {
+		switch (opcode & 0x000F)
+		{
 		// 0x00E0, clear display
 		case 0x0000:
 			disp_clear();
@@ -129,17 +129,17 @@ void chip8::emulateCycle()
 			pc += 2;
 			break;
 
-		// 0x00EE, return from subroutine
+			// 0x00EE, return from subroutine
 		case 0x000e:
 			--sp;
 			pc = stack[sp];
 			pc += 2;
 			break;
+
 		default:
 			printf("Unknown opcode [0x0000]: 0x%X\n", opcode);
 			pc += 2;
 		}
-		break;
 
 		// 1nnn
 	case 0x1000:
@@ -359,9 +359,8 @@ void chip8::emulateCycle()
 		default:
 			printf("opcode not found [0xE000] %X\n", opcode);
 			pc += 2;
-			break;
 		}
-	case 0xf000:
+	case 0xF000:
 		switch (opcode & 0x00FF)
 		{
 		// fx07
@@ -370,15 +369,21 @@ void chip8::emulateCycle()
 			pc += 2;
 			break;
 
-		// fx18
-		case 0x0018:
-			R[(opcode & 0x0F00) >> 8] = sound_timer;
+			// fx0a
+		case 0x000A:
+			printf("not made yet %X\n", opcode);
 			pc += 2;
 			break;
 
-		// fx0a
-		case 0x000A:
-			printf("not made yet %X\n", opcode);
+			// fx15
+		case 0x0015:
+			delay_timer = R[(opcode & 0x0F00) >> 8];
+			pc += 2;
+			break;
+
+		// fx18
+		case 0x0018:
+			R[(opcode & 0x0F00) >> 8] = sound_timer;
 			pc += 2;
 			break;
 
@@ -403,50 +408,36 @@ void chip8::emulateCycle()
 			pc += 2;
 			break;
 
-		case 0x0015:
-			switch (opcode & 0x00F0) {
-			// fx15
-			case 0x0010:
-				delay_timer = R[(opcode & 0x0F00) >> 8];
-				pc += 2;
-				break;
-
 			// fx55
-			case 0x0050:
-				tempInt = (opcode & 0x0F00) >> 8;
+		case 0x0055:
+			tempInt = (opcode & 0x0F00) >> 8;
 
-				for (int j = 0; j <= tempInt; j++) {
-					memory[I + j] = R[j];
-				}
-				pc += 2;
-				break;
-
-			// fx65
-			case 0x0060:
-				tempInt = (opcode & 0x0F00) >> 8;
-
-				for (int j = 0; j <= tempInt; j++) {
-					R[j] = memory[I + j];
-				}
-				pc += 2;
-				break;
-
-			default:
-				printf("opcode not found [0xF005] %X\n", opcode);
-				pc += 2;
-				break;
+			for (int j = 0; j <= tempInt; j++) {
+				memory[I + j] = R[j];
 			}
+			pc += 2;
+			break;
+
+		// fx65
+		case 0x0065:
+			tempInt = (opcode & 0x0F00) >> 8;
+
+			for (int j = 0; j <= tempInt; j++) {
+				R[j] = memory[I + j];
+			}
+			pc += 2;
+			break;
+
 		default:
 			printf("opcode not found [0xF000] %X\n", opcode);
 			pc += 2;
-			break;
 		}
+		break;
 
 
 	default:
 		printf("Unknown opcode 0x%X\n", opcode);
 		pc += 2;
-		break;
 	}
 
 
