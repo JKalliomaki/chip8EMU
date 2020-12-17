@@ -33,6 +33,19 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
+		
+		fAccumulatedTime += fElapsedTime;
+		if (fAccumulatedTime >= fTargetFrameTime)
+		{
+			fAccumulatedTime -= fTargetFrameTime;
+			fElapsedTime = fTargetFrameTime;
+		}
+		else {
+			return true;
+		}
+
+		
+
 		engine->emulateCycle();
 		if (engine->drawFlag)
 		{
@@ -53,13 +66,6 @@ public:
 		}
 		return true;
 
-		/*
-		// called once per frame
-		for (int x = 0; x < ScreenWidth(); x++)
-			for (int y = 0; y < ScreenHeight(); y++)
-				Draw(x, y, olc::Pixel(rand() % 255, rand() % 255, rand() % 255));
-		return true;
-		*/
 	}
 
 	bool setGame(const char gameFileName[])
@@ -69,6 +75,9 @@ public:
 
 private:
 	chip8* engine = new chip8;
+
+	float fTargetFrameTime = 1.0f / 60.0f; // Virtual FPS of 60fps
+	float fAccumulatedTime = 0.0f;
 };
 
 
