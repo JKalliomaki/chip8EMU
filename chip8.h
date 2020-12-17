@@ -16,7 +16,7 @@ public:
 
 	void initialize();
 
-	void load(const char gameFileName[] = "pong");
+	bool load(const char gameFileName[] = "pong");
 
 	void emulateCycle();
 

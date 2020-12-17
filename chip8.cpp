@@ -2,6 +2,7 @@
 
 chip8::~chip8()
 {
+	
 }
 
 void chip8::initialize()
@@ -38,7 +39,7 @@ void chip8::initialize()
 
 }
 
-void chip8::load(const char gameFileName[])
+bool chip8::load(const char gameFileName[])
 {
 	// open file in binary format and move to end of it with ::ate
 	std::ifstream gameFile(gameFileName, std::ios::binary | std::ios::ate);
@@ -58,10 +59,12 @@ void chip8::load(const char gameFileName[])
 	}
 	else {
 		printf("error reading file \n");
+		return false;
 	}
 
 	// Close file
 	gameFile.close();
+	return true;
 }
 
 void chip8::emulateCycle()

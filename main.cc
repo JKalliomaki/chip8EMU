@@ -10,6 +10,7 @@
 #include "olcPixelGameEngine.h"
 #include "chip8.h"
 
+// olc::PGE window consisting the game and controls
 class myWindow : public olc::PixelGameEngine
 {
 public:
@@ -17,11 +18,16 @@ public:
 	{
 		sAppName = "CHIP8 emulator";
 	}
+	~myWindow()
+	{
+		delete engine;
+	}
 
 public:
 	bool OnUserCreate() override
 	{
 		// Called once at the start, so create things here
+
 		return true;
 	}
 
@@ -34,16 +40,37 @@ public:
 		return true;
 	}
 
+	bool setGame(const char gameFileName[])
+	{
+		return engine->load(gameFileName);
+	}
+
 private:
 	chip8* engine = new chip8;
 };
 
-int main()
+
+// Start the olc::PGE window
+
+int main(int argc, char** argv)
 {
+
+	if (argc < 2)
+	{
+		printf("Usage: myChip8.exe chip8application\n\n");
+		return 1;
+	}
+
+
 
 	myWindow window;
 	if (window.Construct(64, 32, 4, 4))
 	{
+		if (!window.setGame(argv[1])) {
+			printf("Game initialization failed");
+			return 1;
+		}
+
 		window.Start();
 	}
 
