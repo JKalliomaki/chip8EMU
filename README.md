@@ -3,7 +3,8 @@ chip8 emulator with basic idea gotten from [here.](http://www.multigesture.net/a
 
 Rendering of the game is done with [oneLoneCoder's PixelGameEngine.](https://github.com/OneLoneCoder/olcPixelGameEngine)
 
-Screenshot of the engine in usage:
+Screenshot of the emulator in usage:
+
 ![Screenshot of the game](https://github.com/JKalliomaki/chip8EMU/blob/master/ScreenCapOfPong.png)
 
 To play you need to build the game files using Visual Studio
