@@ -18,7 +18,7 @@ Debug/chip8EMU.exe pong2.c8
 ```
 
 Keypad on the keyboard is 
-key|board|  |  |
+key|board|key|board|
 - | - | - | -
 1|2|3|4
 q|w|e|r
