@@ -28,6 +28,7 @@ a s d f
 z x c v
 
 ### In progress:
+* controls need tweaking
 * Audio output
 * Cleaning of emulating cycle (maybe function pointers)
 * Super Chip-8 integration
